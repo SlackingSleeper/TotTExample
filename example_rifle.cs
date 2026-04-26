@@ -23,7 +23,7 @@ namespace TotTExample
         static readonly List<BaseDamageable> dashTargets = [];
         static void DoDiscard()
         {
-            BigChungus.currentlyActiveUpdateEffects.Add(data.cardID);
+            BigChungus.StartEffect(data.cardID);
 
             dashDirection = RM.mechController.playerCamera.PlayerCam.transform.parent.forward;
             dashTimer = 0.35f;
@@ -55,7 +55,7 @@ namespace TotTExample
             dashTimer -= deltaTime;
             if (dashTimer <= 0f)
             {
-                BigChungus.currentlyActiveUpdateEffects.Remove(data.cardID);
+                BigChungus.StopEffect(data.cardID);
                 RM.drifter.AddExternalVelocity(dashEndVector);
                 var ffffff = AccessTools.Field(typeof(FirstPersonDrifter), "velocity");
                 var vel = (Vector3)ffffff.GetValue(RM.drifter);
@@ -204,21 +204,14 @@ namespace TotTExample
 
                 isLoaded = true;
             }
-            if (BigChungus.customDictionary.ContainsKey(data.cardID) == false)
-            {
-                BigChungus.customDictionary.Add(data.cardID, new(data: data,
+            BigChungus.Register(new(data: data,
                                                                  checkDiscardAllowed: () => true,
-                                                                 abortAbility: (_)=> BigChungus.currentlyActiveUpdateEffects.Remove(data.cardID),
+                                                                 abortAbility: (_) => BigChungus.StopEffect(data.cardID),
                                                                  createCustomProjectile: CreateProjectile,
                                                                  doDiscard: DoDiscard,
                                                                  updateVelocityEarly: EarlyUpdateVelocity,
                                                                  updateVelocityLate: LateUpdateVelocity,
                                                                  onMovementHit: OnMovementHit));
-            }
-            if (BigChungus.discardNumberToCardID.ContainsKey((int)data.discardAbility) == false)
-            {
-                BigChungus.discardNumberToCardID.Add((int)data.discardAbility, data.cardID);
-            }
         }
         class example_rifleProjectile : ProjectileBase
         {
